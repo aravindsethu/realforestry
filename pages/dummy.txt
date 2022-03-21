@@ -1,0 +1,157 @@
+/* eslint-disable react-native/no-inline-styles */
+import React, {Component} from 'react';
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  Picker,
+  ActivityIndicator,
+} from 'react-native';
+
+export default class LandCoverHome extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      LandType: '',
+      SoilType: '',
+      SurveyPlotNo: '',
+      LandDetails: '',
+      isLoading: true,
+      PickerValueHolder: '',
+    };
+  }
+  componentDidMount() {
+    return fetch('https://krishhortus.com/app/treeid.php')
+      .then(response => response.json())
+      .then(responseJson => {
+        this.setState(
+          {
+            isLoading: false,
+            dataSource: responseJson,
+          },
+          function() {
+            // In this block you can do something with new state.
+          },
+        );
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+  static navigationOptions = {
+    title: 'GROVE GAMING',
+    headerStyle: {
+      backgroundColor: '#006400',
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: 'bold',
+      fontFamily: 'Allura-Regular',
+    },
+    headerShown: false,
+  };
+  GroveGamingFunction = () => {
+    const {LandType} = this.state;
+    const {SoilType} = this.state;
+    const {SurveyPlotNo} = this.state;
+    const {LandDetails} = this.state;
+    const {PickerValueHolder} = this.state;
+    fetch('https://krishhortus.com/app/grove_gaming.php', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+
+      body: JSON.stringify({
+        PickerValueHolder: PickerValueHolder,
+        LandType: LandType,
+        SoilType: SoilType,
+        SurveyPlotNo: SurveyPlotNo,
+        LandDetails: LandDetails,
+      }),
+    })
+      .then(response => response.text())
+      .then(responseJson => {
+        alert(responseJson);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
+  render() {
+    // if (this.state.isLoading) {
+    //   return (
+    //     <View style={{flex: 1, paddingTop: 20}}>
+    //       <ActivityIndicator />
+    //     </View>
+    //   );
+    // }
+    return (
+      <View style={styles.MainContainer}>
+        <View style={{borderBottomColor: '#006400', borderBottomWidth: 2}}>
+          <Picker
+            selectedValue={this.state.PickerValueHolder}
+            onValueChange={(itemValue, itemIndex) =>
+              this.setState({PickerValueHolder: itemValue})
+            }>
+            {this.state.dataSource.map((item, key) => (
+              <Picker.Item label={item.id} value={item.id} key={key} />
+            ))}
+          </Picker>
+        </View>
+        <TextInput
+          placeholder={'Land type'}
+          onChangeText={LandType => this.setState({LandType})}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder={'Soil type'}
+          onChangeText={SoilType => this.setState({SoilType})}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder={'Survey plot no.'}
+          onChangeText={SurvyePlotNo => this.setState({SurvyePlotNo})}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder={'Land Type'}
+          onChangeText={LandDetails => this.setState({LandDetails})}
+          style={styles.input}
+        />
+        <TouchableOpacity
+          style={styles.login}
+          onPress={this.GroveGamingFunction}>
+          <Text style={{color: '#f5fffa'}}>Add Grove Gaming details</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+}
+const styles = StyleSheet.create({
+  MainContainer: {
+    justifyContent: 'center',
+    flex: 1,
+    margin: 35,
+  },
+  login: {
+    alignItems: 'center',
+    backgroundColor: '#006400',
+    padding: 10,
+    width: 300,
+    marginTop: 10,
+    fontSize: 15,
+  },
+  input: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#006400',
+    padding: 5,
+    width: 300,
+    marginTop: 10,
+    fontSize: 15,
+  },
+});
